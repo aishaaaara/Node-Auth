@@ -2,46 +2,71 @@ const express = require("express")
 const app = express()
 const bodyParser = require("body-parser")
 const cors = require("cors")
-const db = require("../config")
+const db = require("../config") //import konfigurasi database
 
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
-app.get("/", (req, res) => {
-    let sql = "select * from siswa"
-    db.query(sql, (err, result) => {
-        if(err){
-            throw err
-        }else{
-            let response = {
-                count: result.length,
-                siswa: result
-            }
-            res.setHeader("Content-Type", "application/json")
-            res.send(JSON.stringify(response))
-        }
-    })
-})
-
-app.post("/", (req,res) => {
-    let find = req.body.find
-    let sql = "select * from siswa where id_siswa like '%"+find+"%' or nis like '%"+find+"%' or nama_siswa like '%"+find+"%' like '%"+find+"%' or kelas like '%"+find+"%' like '%"+find+"%' or jurusan like '%"+find+"%' like '%"+find+"%' or point like '%"+find+"%'"
+// GET: /pelanggaran --> end pointt untuk mengakses data pelanggaran
+app.get("/", (req,res) => {
+    let sql = "SELECT s.id_siswa, s.nis, s.nama_siswa, s.kelas, s.jurusan, s.point, " +
+    "j.nama_jurusan, j.kepanjangan " +
+    "FROM siswa s JOIN jurusan j ON s.jurusan = j.id_jurusan"
     db.query(sql, (err, result) => {
         if (err) {
             throw err
-        }else {
+        }
+        else{
             let response = {
                 count: result.length,
                 siswa: result
             }
+        
+            res.setHeader("Content-Type","application/json")
+            res.send(JSON.stringify(response))
+        }
+    })    
+})
+
+app.get("/jurusan", (req,res) => {
+    let sql = "SELECT * from jurusan"
+    db.query(sql, (err, result) => {
+        if (err) {
+            throw err
+        }
+        else{
+            let response = {
+                count: result.length,
+                jurusan: result
+            }
+        
             res.setHeader("Content-Type","application/json")
             res.send(JSON.stringify(response))
         }
     })
 })
 
+// POST: /pelanggaran --> end pointt untuk pencarian data pelanggaran
+app.post("/", (req,res) => {
+    let find = req.body.find
+    let sql = "select * from siswa where id_siswa like '%"+find+"%' or nis like '%"+find+"%' or nama_siswa like '%"+find+"%' or kelas like '%"+find+"%' or jurusan like '%"+find+"%' or point like '%"+find+"%'"
+    db.query(sql, (err, result) => {
+        if (err) {
+            throw err
+        } else {
+            let response = {
+                count: result.length,
+                siswa: result
+            }
+        
+            res.setHeader("Content-Type","application/json")
+            res.send(JSON.stringify(response))
+        }
+    })
+})
 
+// POST: /pelanggaran/save --> end pointt untuk insert data pelanggaran
 app.post("/save", (req,res) => {
     let data = {
         id_siswa: req.body.id_siswa,
@@ -69,7 +94,7 @@ app.post("/save", (req,res) => {
     })
 })
 
-
+// POST: /pelanggaran/update --> end pointt untuk update data pelanggaran
 app.post("/update", (req,res) => {
     let data = [{
         id_siswa: req.body.id_siswa,
@@ -97,11 +122,11 @@ app.post("/update", (req,res) => {
     })
 })
 
-
+// DELETE: /pegawai/:id_pegawai --> end pointt untuk hapus data pegawai
 app.delete("/:id_siswa", (req,res) => {
     let data = {
         id_siswa : req.params.id_siswa
-    } 
+    }
     let message = ""
     let sql = "delete from siswa where ?"
     db.query(sql, data, (err,result) => {
@@ -111,7 +136,8 @@ app.delete("/:id_siswa", (req,res) => {
             message = result.affectedRows + " row deleted"
         }
 
-        let response = {
+
+let response = {
             message : message
         }
         res.setHeader("Content-Type","application/json")
