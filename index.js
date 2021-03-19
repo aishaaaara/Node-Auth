@@ -20,6 +20,18 @@ app.use("/pelanggaran", auth, pelanggaran)
 const siswa = require("./route/siswa")
 app.use("/siswa", auth, siswa)
 
+//import route jurusan
+const jurusan = require("./route/jurusan")
+app.use("/jurusan", auth, jurusan)
+
+
+//base url -> http://localhost:2000/pelanggaran_siswa
+const pelanggaran_siswa = require("./route/pelanggaran_siswa")
+app.use("/pelanggaran_siswa", auth, pelanggaran_siswa)
+
+//base url -> http://localhost:2000/detail_pelanggaran_siswa
+const detail_pelanggaran_siswa = require("./route/detail_pelanggaran_siswa")
+app.use("/detail_pelanggaran_siswa", auth, detail_pelanggaran_siswa)
 
 app.listen(2000, () => {
 
